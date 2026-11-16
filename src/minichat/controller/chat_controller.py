@@ -62,37 +62,13 @@ class ChatController(Observable):
         """Current generation configuration."""
         return self._cfg
 
-    def set_generation(
-        self,
-        temperature: float,
-        top_p: float,
-        top_k: int,
-        max_new_tokens: int,
-        max_ctx_tokens: int,
-    ) -> None:
+    def set_generation(self, cfg: GenerationConfig) -> None:
         """Update generation parameters.
 
-        Raises:
-            ValueError: If any value is invalid.
+        The values are already validated by GenerationConfig.__post_init__,
+        so an invalid configuration cannot reach this method.
         """
-        if temperature <= 0:
-            raise ValueError("temperature must be positive")
-        if not (0 < top_p <= 1):
-            raise ValueError("top_p must be in (0, 1]")
-        if top_k < 0:
-            raise ValueError("top_k must be >= 0")
-        if max_new_tokens <= 0:
-            raise ValueError("max_new_tokens must be positive")
-        if max_ctx_tokens <= 0:
-            raise ValueError("max_ctx_tokens must be positive")
-
-        self._cfg = GenerationConfig(
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-            max_new_tokens=max_new_tokens,
-            max_ctx_tokens=max_ctx_tokens,
-        )
+        self._cfg = cfg
         self._notify(Event.CONFIG_CHANGED, {"cfg": asdict(self._cfg)})
 
     def send_user(self, text: str) -> None:
